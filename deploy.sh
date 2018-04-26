@@ -24,6 +24,9 @@ fi
 rm -rf gcr.io_mirror/google_containers/*
 
 for img in ${imgs[@]}  ; do
+    # echo image
+    echo "gcr.io image : ${image}"
+
     # get all  tags for this image
     gcr_content=$(curl -ks -X GET https://gcr.io/v2/google_containers/${img}/tags/list)
     

@@ -1,14 +1,14 @@
-git config user.name "anjia0532"
-git config user.email "anjia0532@gmail.com"
+git config user.name "aclk"
+git config user.email "vk.he@qq.com"
 
 # clone master branch
-git clone "https://${GH_TOKEN}@github.com/anjia0532/gcr.io_mirror.git"
+git clone "https://${GH_TOKEN}@github.com/aclk/gcr.io_mirror.git"
 
 # get all of the gcr images
 imgs=$(curl -ks 'https://console.cloud.google.com/m/gcr/entities/list'  -H 'cookie: SID=WgX93aiB6sVpD_FPLDBsPHvLnYdhtMXYt9bHsf_TmrmIvLkrnc11D84pIcS-3WB9fYIHKw.; HSID=A--M5SxveLfh2e7Jl; SSID=AqvfThGwBO94ONF2d; OSID=ZAX93cIEBWYq35v3hq6J5U3MNU3voHihnEqmrmIirWBfHluQ3Gjbb4E24vDuPoSVKpC2tg.'  -H 'content-type: application/json;charset=UTF-8'   --data-binary '["google-containers"]' | grep -P '"' | sed 's/"gcr.ListEntities"//'|cut -d '"' -f2 |sort|uniq)
 
 # init README.md
-echo -e "Google Container Registry Mirror [last sync $(date +'%Y-%m-%d %H:%M') UTC]\n-------\n\n[![Sync Status](https://travis-ci.org/anjia0532/gcr.io_mirror.svg?branch=sync)](https://travis-ci.org/anjia0532/gcr.io_mirror)\n\nTotal of $(echo ${imgs[@]} | grep -o ' ' | wc -l)'s gcr.io images\n-------\n\nUseage\n-------\n\n\`\`\`bash\ndocker pull gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1 \n# eq \ndocker pull anjia0532/federation-controller-manager-arm64:v1.3.1-beta.1\n\`\`\`\n\n[Changelog](./CHANGES.md)\n-------\n\nImages\n-------\n\n" > gcr.io_mirror/README.md
+echo -e "Google Container Registry Mirror [last sync $(date +'%Y-%m-%d %H:%M') UTC]\n-------\n\n[![Sync Status](https://travis-ci.org/aclk/gcr.io_mirror.svg?branch=sync)](https://travis-ci.org/aclk/gcr.io_mirror)\n\nTotal of $(echo ${imgs[@]} | grep -o ' ' | wc -l)'s gcr.io images\n-------\n\nUseage\n-------\n\n\`\`\`bash\ndocker pull gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1 \n# eq \ndocker pull abcz/federation-controller-manager-arm64:v1.3.1-beta.1\n\`\`\`\n\n[Changelog](./CHANGES.md)\n-------\n\nImages\n-------\n\n" > gcr.io_mirror/README.md
 
 # create changelog md
 if [ ! -s gcr.io_mirror/CHANGES.md ]; then
@@ -33,7 +33,7 @@ for img in ${imgs[@]}  ; do
     fi
     
     # create image README.md
-    echo -e "[gcr.io/google-containers/${img}](https://hub.docker.com/r/anjia0532/${img}/tags/) \n\n----" > gcr.io_mirror/google_containers/${img}/README.md
+    echo -e "[gcr.io/google-containers/${img}](https://hub.docker.com/r/abcz/${img}/tags/) \n\n----" > gcr.io_mirror/google_containers/${img}/README.md
     
     # create img tmp file,named by tag's name, set access's time,modify's time by this image manifest's timeUploadedMs
     echo ${gcr_content} | jq -r '.manifest[]|{k: .tag[0],v: .timeUploadedMs} | "touch -amd \"$(date -d @" + .v[0:10] +")\" gcr.io_mirror\/google_containers\/${img}\/"  +.k' | while read i; do
@@ -51,10 +51,10 @@ for img in ${imgs[@]}  ; do
         docker push ${user_name}/${img}:${tag}
         
         # write this to changelogs
-        echo -e "1. [gcr.io/google_containers/${img}:${tag} updated](https://hub.docker.com/r/anjia0532/${img}/tags/) \n\n" >> CHANGES.md
+        echo -e "1. [gcr.io/google_containers/${img}:${tag} updated](https://hub.docker.com/r/abcz/${img}/tags/) \n\n" >> CHANGES.md
         
         # image readme.md
-        echo -e "**[gcr.io/google_containers/${img}:${tag} updated](https://hub.docker.com/r/anjia0532/${img}/tags/)**\n" >> gcr.io_mirror/google_containers/${img}/README.md
+        echo -e "**[gcr.io/google_containers/${img}:${tag} updated](https://hub.docker.com/r/abcz/${img}/tags/)**\n" >> gcr.io_mirror/google_containers/${img}/README.md
     done
 
     # docker hub pull's token
@@ -77,13 +77,13 @@ for img in ${imgs[@]}  ; do
             docker push ${user_name}/${img}:${tag}
         fi
         # old img tag write to image's readme.md
-        echo -e "[gcr.io/google_containers/${img}:${tag} √](https://hub.docker.com/r/anjia0532/${img}/tags/)\n" >> gcr.io_mirror/google_containers/${img}/README.md
+        echo -e "[gcr.io/google_containers/${img}:${tag} √](https://hub.docker.com/r/abcz/${img}/tags/)\n" >> gcr.io_mirror/google_containers/${img}/README.md
         
         # cleanup the docker file
         docker system prune -f -a
     done
     
-    echo -e "[gcr.io/google_containers/${img} √](https://hub.docker.com/r/anjia0532/${img}/tags/)\n" >> gcr.io_mirror/README.md
+    echo -e "[gcr.io/google_containers/${img} √](https://hub.docker.com/r/abcz/${img}/tags/)\n" >> gcr.io_mirror/README.md
 done
 
 if [ -s CHANGES.md ]; then
@@ -93,6 +93,6 @@ fi
 cd gcr.io_mirror
 git add .
 git commit -m "sync gcr.io's images"
-git push --quiet "https://${GH_TOKEN}@github.com/anjia0532/gcr.io_mirror.git" master:master
+git push --quiet "https://${GH_TOKEN}@github.com/aclk/gcr.io_mirror.git" master:master
 
 exit 0

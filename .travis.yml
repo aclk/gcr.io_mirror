@@ -3,6 +3,7 @@ services:
 script:
   - docker login -u${user_name} -p${pass_word}
   - chmod +x ./deploy.sh
+  - chmod +x ./tags_list.sh
   - ./deploy.sh
 branches:
   only:

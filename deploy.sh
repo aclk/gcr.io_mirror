@@ -3,8 +3,7 @@ git config user.email "vk.he@qq.com"
 
 pwd
 
-ls -ahl
-
+ll = $(ls -ahl)
 
 # clone master branch
 git clone "https://${GH_TOKEN}@github.com/aclk/gcr.io_mirror.git"
@@ -38,13 +37,15 @@ for img in ${imgs[@]}  ; do
     fi
     
     # create image README.md
-    # echo -e "[gcr.io/google-containers/${img}](https://hub.docker.com/r/abcz/${img}/tags/) \n\n----" > gcr.io_mirror/google_containers/${img}/README.md
+    echo -e "[gcr.io/google-containers/${img}](https://hub.docker.com/r/abcz/${img}/tags/) \n\n----" > gcr.io_mirror/google_containers/${img}/README.md
     
     # create img tmp file,named by tag's name, set access's time,modify's time by this image manifest's timeUploadedMs
-    # echo ${gcr_content} | jq -r '.manifest[]|{k: .tag[0],v: .timeUploadedMs} | "touch -amd \"$(date -d @" + .v[0:10] +")\" gcr.io_mirror\/google_containers\/${img}\/"  +.k' | while read i; do
-    #     eval $i
-    # done
+    echo ${gcr_content} | jq -r '.manifest[]|{k: .tag[0],v: .timeUploadedMs} | "touch -amd \"$(date -d @" + .v[0:10] +")\" gcr.io_mirror\/google_containers\/${img}\/"  +.k' | while read i; do
+        eval $i
+    done
     
+    ll
+
     # get all of the files by last modify time after yesterday,it was new image
     new_tags=$(find ./gcr.io_mirror/google_containers/${img} -path "*.md" -prune -o -mtime -1 -type f -exec basename {} \;)
     
@@ -82,25 +83,25 @@ for img in ${imgs[@]}  ; do
             # docker pull gcr.io/google-containers/${img}:${tag}
             # docker tag gcr.io/google-containers/${img}:${tag} ${user_name}/${img}:${tag}
             # docker push ${user_name}/${img}:${tag}
-            echo "image:tag => ${img}:${tag}"
+            echo "new"
         fi
         # old img tag write to image's readme.md
-        # echo -e "[gcr.io/google_containers/${img}:${tag} √](https://hub.docker.com/r/abcz/${img}/tags/)\n" >> gcr.io_mirror/google_containers/${img}/README.md
+        echo -e "[gcr.io/google_containers/${img}:${tag} √](https://hub.docker.com/r/abcz/${img}/tags/)\n" >> gcr.io_mirror/google_containers/${img}/README.md
         
         # cleanup the docker file
-        # docker system prune -af
+        docker system prune -af
     done
     
-    # echo -e "[gcr.io/google_containers/${img} √](https://hub.docker.com/r/abcz/${img}/tags/)\n" >> gcr.io_mirror/README.md
+    echo -e "[gcr.io/google_containers/${img} √](https://hub.docker.com/r/abcz/${img}/tags/)\n" >> gcr.io_mirror/README.md
 done
 
-# if [ -s CHANGES.md ]; then
-#     (echo -e "## $(date +%Y-%m-%d) \n" && cat CHANGES.md && cat gcr.io_mirror/CHANGES.md) > gcr.io_mirror/CHANGES1.md && mv gcr.io_mirror/CHANGES1.md gcr.io_mirror/CHANGES.md
-# fi
+if [ -s CHANGES.md ]; then
+    (echo -e "## $(date +%Y-%m-%d) \n" && cat CHANGES.md && cat gcr.io_mirror/CHANGES.md) > gcr.io_mirror/CHANGES1.md && mv gcr.io_mirror/CHANGES1.md gcr.io_mirror/CHANGES.md
+fi
 
-# cd gcr.io_mirror
-# git add .
-# git commit -m "sync gcr.io's images"
-# git push --quiet "https://${GH_TOKEN}@github.com/aclk/gcr.io_mirror.git" master:master
+cd gcr.io_mirror
+git add .
+git commit -m "sync gcr.io's images"
+git push --quiet "https://${GH_TOKEN}@github.com/aclk/gcr.io_mirror.git" master:master
 
 exit 0

@@ -1,9 +1,11 @@
 git config user.name "aclk"
 git config user.email "vk.he@qq.com"
 
+pwd
 
+ls -ahl
 
-bash ./tags_list markriggins/todowrangler
+bash ./tags_list.sh markriggins/todowrangler
 
 # # clone master branch
 # git clone "https://${GH_TOKEN}@github.com/aclk/gcr.io_mirror.git"

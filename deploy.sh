@@ -60,8 +60,7 @@ for img in ${imgs[@]}; do
     > gcr.io_mirror/google_containers/${img}/README.md
     
     # create img tmp file,named by tag's name, set access's time,modify's time by this image manifest's timeUploadedMs
-    echo ${gcr_content} |
-        jq -r '.manifest[]|{k: .tag[0],v: .timeUploadedMs} | "touch -amd \"$(date -d @" + .v[0:10] +")\" gcr.io_mirror\/google_containers\/${img}\/"  +.k' |
+    echo ${gcr_content} | jq -r '.manifest[]|{k: .tag[0],v: .timeUploadedMs} | "touch -amd \"$(date -d @" + .v[0:10] +")\" gcr.io_mirror\/google_containers\/${img}\/"  +.k' |
         while read i;
         do
             eval $i
@@ -89,18 +88,13 @@ for img in ${imgs[@]}; do
     done
 
     # docker hub pull's token
-    token=$(curl -ks https://auth.docker.io/token\?service\=registry.docker.io\&scope\=repository:${user_name}/${img}:pull |
-        jq -r '.token')
+    token=$(curl -ks https://auth.docker.io/token\?service\=registry.docker.io\&scope\=repository:${user_name}/${img}:pull | jq -r '.token')
     
     # get this gcr image's tags
-    gcr_tags=$(echo ${gcr_content} |
-        jq -r '.tags[]' |
-        sort -r)
+    gcr_tags=$(echo ${gcr_content} | jq -r '.tags[]' | sort -r)
     
     # get this docker hub image's tags
-    hub_tags=$(curl -ks -H "authorization: Bearer ${token}" https://registry.hub.docker.com/v2/${user_name}/${img}/tags/list |
-        jq -r '.tags[]' |
-        sort -r)
+    hub_tags=$(curl -ks -H "authorization: Bearer ${token}" https://registry.hub.docker.com/v2/${user_name}/${img}/tags/list | jq -r '.tags[]' | sort -r)
     
     for tag in ${gcr_tags}
     do

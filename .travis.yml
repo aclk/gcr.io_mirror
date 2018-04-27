@@ -7,11 +7,10 @@ env:
     - NODE_ENV=TEST
 
 python:
-    - "2.7"
+    - "3.5"
 
 install:
     - npm install -g json
-    - pip install --upgrade pip
     - pip install -r requirements.txt
 
 services:

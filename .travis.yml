@@ -1,7 +1,7 @@
 language: python
 
 python:
-    - "2.6"
+    # - "2.6"
     - "2.7"
 
 install:
@@ -11,8 +11,7 @@ services:
   - docker
 script:
   - docker login -u${user_name} -p${pass_word}
-  - chmod +x ./deploy.sh
-  - chmod +x ./tags_list.sh
+  - chmod +x ./*.sh
   - ./deploy.sh
 branches:
   only:

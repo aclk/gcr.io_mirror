@@ -1,18 +1,26 @@
-language: python
+language: node_js
+
+node_js:
+    - "node"
+
+env:
+    - NODE_ENV=TEST
 
 python:
-    # - "2.6"
     - "2.7"
 
 install:
+    - npm install -g json
     - pip install -r requirements.txt
 
 services:
   - docker
+
 script:
   - docker login -u${user_name} -p${pass_word}
   - chmod +x ./*.sh
   - ./deploy.sh
+
 branches:
   only:
     - sync

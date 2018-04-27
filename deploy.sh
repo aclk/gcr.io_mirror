@@ -6,9 +6,7 @@ git clone "https://${GH_TOKEN}@github.com/aclk/gcr.io_mirror.git"
 
 # get all of the gcr images
 imgs=$(curl -ks 'https://console.cloud.google.com/m/gcr/entities/list' \
--H 'cookie: SID=WgX93aiB6sVpD_FPLDBsPHvLnYdhtMXYt9bHsf_TmrmIvLkrnc11D84pIcS-3WB9fYIHKw.; \
-            HSID=A--M5SxveLfh2e7Jl; SSID=AqvfThGwBO94ONF2d; \
-            OSID=ZAX93cIEBWYq35v3hq6J5U3MNU3voHihnEqmrmIirWBfHluQ3Gjbb4E24vDuPoSVKpC2tg.' \
+-H 'cookie: SID=WgX93aiB6sVpD_FPLDBsPHvLnYdhtMXYt9bHsf_TmrmIvLkrnc11D84pIcS-3WB9fYIHKw.;HSID=A--M5SxveLfh2e7Jl; SSID=AqvfThGwBO94ONF2d;OSID=ZAX93cIEBWYq35v3hq6J5U3MNU3voHihnEqmrmIirWBfHluQ3Gjbb4E24vDuPoSVKpC2tg.' \
 -H 'content-type: application/json;charset=UTF-8' \
 --data-binary '["google-containers"]' \
 | grep -P '"' \

@@ -7,6 +7,8 @@ git clone "https://${GH_TOKEN}@github.com/aclk/gcr.io_mirror.git"
 # get all of the gcr images
 imgs=$(curl -ks 'https://console.cloud.google.com/m/gcr/entities/list'  -H 'cookie: SID=WgX93aiB6sVpD_FPLDBsPHvLnYdhtMXYt9bHsf_TmrmIvLkrnc11D84pIcS-3WB9fYIHKw.; HSID=A--M5SxveLfh2e7Jl; SSID=AqvfThGwBO94ONF2d; OSID=ZAX93cIEBWYq35v3hq6J5U3MNU3voHihnEqmrmIirWBfHluQ3Gjbb4E24vDuPoSVKpC2tg.'  -H 'content-type: application/json;charset=UTF-8'   --data-binary '["google-containers"]' | grep -P '"' | sed 's/"gcr.ListEntities"//'|cut -d '"' -f2 |sort|uniq)
 
+echo "imgs : ${imgs}"
+
 # init README.md
 echo -e "Google Container Registry Mirror [last sync $(date +'%Y-%m-%d %H:%M') UTC]\n-------\n\n[![Sync Status](https://travis-ci.org/aclk/gcr.io_mirror.svg?branch=sync)](https://travis-ci.org/aclk/gcr.io_mirror)\n\nTotal of $(echo ${imgs[@]} | grep -o ' ' | wc -l)'s gcr.io images\n-------\n\nUseage\n-------\n\n\`\`\`bash\ndocker pull gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1 \n# eq \ndocker pull abcz/federation-controller-manager-arm64:v1.3.1-beta.1\n\`\`\`\n\n[Changelog](./CHANGES.md)\n-------\n\nImages\n-------\n\n" > gcr.io_mirror/README.md
 
@@ -24,11 +26,10 @@ fi
 rm -rf gcr.io_mirror/google_containers/*
 
 for img in ${imgs[@]}  ; do
-    # echo image
-    echo "gcr.io image : ${img}"
-
     # get all  tags for this image
     gcr_content=$(curl -ks -X GET https://gcr.io/v2/google_containers/${img}/tags/list)
+
+    echo "gcr_content : ${gcr_content}"
     
     # if this image dir not exits 
     if [ ! -d gcr.io_mirror/google_containers/${img} ] ; then
@@ -47,11 +48,12 @@ for img in ${imgs[@]}  ; do
     new_tags=$(find ./gcr.io_mirror/google_containers/${img} -path "*.md" -prune -o -mtime -1 -type f -exec basename {} \;)
     
     for tag in ${new_tags[@]};do
-        docker pull gcr.io/google-containers/${img}:${tag}
+        echo "gcr.io/google-containers/${img}:${tag}"
+        # docker pull gcr.io/google-containers/${img}:${tag}
         
-        docker tag gcr.io/google-containers/${img}:${tag} ${user_name}/${img}:${tag}
+        # docker tag gcr.io/google-containers/${img}:${tag} ${user_name}/${img}:${tag}
         
-        docker push ${user_name}/${img}:${tag}
+        # docker push ${user_name}/${img}:${tag}
         
         # write this to changelogs
         echo -e "1. [gcr.io/google_containers/${img}:${tag} updated](https://hub.docker.com/r/abcz/${img}/tags/) \n\n" >> CHANGES.md
@@ -72,18 +74,19 @@ for img in ${imgs[@]}  ; do
     for tag in ${gcr_tags}
     do
         # if both of the gcr and docker hub ,not do anythings
-        if [ ! -z "${hub_tags[@]}" ] && (echo "${hub_tags[@]}" | grep -w "${tag}" &>/dev/null); then 
-             echo google_containers/${img}:${tag} exits
+        if [ ! -z "${hub_tags[@]}" ] && (echo "${hub_tags[@]}" | grep -w "${tag}" &>/dev/null); then
+            echo google_containers/${img}:${tag} exits
         else
-            docker pull gcr.io/google-containers/${img}:${tag}
-            docker tag gcr.io/google-containers/${img}:${tag} ${user_name}/${img}:${tag}
-            docker push ${user_name}/${img}:${tag}
+            echo "gcr.io/google-containers/${img}:${tag}"
+            # docker pull gcr.io/google-containers/${img}:${tag}
+            # docker tag gcr.io/google-containers/${img}:${tag} ${user_name}/${img}:${tag}
+            # docker push ${user_name}/${img}:${tag}
         fi
         # old img tag write to image's readme.md
         echo -e "[gcr.io/google_containers/${img}:${tag} √](https://hub.docker.com/r/abcz/${img}/tags/)\n" >> gcr.io_mirror/google_containers/${img}/README.md
         
         # cleanup the docker file
-        docker system prune -f -a
+        docker system prune -af
     done
     
     echo -e "[gcr.io/google_containers/${img} √](https://hub.docker.com/r/abcz/${img}/tags/)\n" >> gcr.io_mirror/README.md

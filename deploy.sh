@@ -78,6 +78,7 @@ for img in ${imgs[@]}  ; do
             # docker pull gcr.io/google-containers/${img}:${tag}
             # docker tag gcr.io/google-containers/${img}:${tag} ${user_name}/${img}:${tag}
             # docker push ${user_name}/${img}:${tag}
+            echo "image:tag => ${img}:${tag}"
         fi
         # old img tag write to image's readme.md
         echo -e "[gcr.io/google_containers/${img}:${tag} √](https://hub.docker.com/r/abcz/${img}/tags/)\n" >> gcr.io_mirror/google_containers/${img}/README.md

@@ -3,6 +3,9 @@
 REPOSITORY=${REPOSITORY:-$1}
 REGISTRY=${REGISTRY:-docker.io}
 
+echo "REPOSITORY => ${REPOSITORY}"
+echo "REGISTRY => ${REGISTRY}"
+
 #
 #  Docker funcs
 #

@@ -89,7 +89,7 @@ for img in ${imgs[@]}  ; do
         echo -e "[gcr.io/google_containers/${img}:${tag} √](https://hub.docker.com/r/abcz/${img}/tags/)\n" >> gcr.io_mirror/google_containers/${img}/README.md
         
         # cleanup the docker file
-        docker system prune -af
+        # docker system prune -af
     done
     
     echo -e "[gcr.io/google_containers/${img} √](https://hub.docker.com/r/abcz/${img}/tags/)\n" >> gcr.io_mirror/README.md
@@ -99,9 +99,9 @@ if [ -s CHANGES.md ]; then
     (echo -e "## $(date +%Y-%m-%d) \n" && cat CHANGES.md && cat gcr.io_mirror/CHANGES.md) > gcr.io_mirror/CHANGES1.md && mv gcr.io_mirror/CHANGES1.md gcr.io_mirror/CHANGES.md
 fi
 
-cd gcr.io_mirror
-git add .
-git commit -m "sync gcr.io's images"
-git push --quiet "https://${GH_TOKEN}@github.com/aclk/gcr.io_mirror.git" master:master
+# cd gcr.io_mirror
+# git add .
+# git commit -m "sync gcr.io's images"
+# git push --quiet "https://${GH_TOKEN}@github.com/aclk/gcr.io_mirror.git" master:master
 
 exit 0

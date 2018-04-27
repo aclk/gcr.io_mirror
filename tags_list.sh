@@ -1,60 +1,59 @@
 #!/usr/bin/env bash
 
-REPOSITORY=${REPOSITORY:-$1}
-REGISTRY=${REGISTRY:-docker.io}
+repository=${repository:-$1}
+registry=${registry:-docker.io}
 
-echo "REPOSITORY => ${REPOSITORY}"
-echo "REGISTRY => ${REGISTRY}"
+echo "repository => ${repository}"
+echo "registry => ${registry}"
 
 #
-#  Docker funcs
+#  Docker functions
 #
-    d__docker_relative_repository_name_from_URL() {
-        # given $REGISTRY/repo/path:tag, return the repo/path
-        set +o pipefail
-        echo ${1-} | sed -e "s|^$REGISTRY/||" | cut -d: -f1
-    }
+__docker_relative_repository_name_from_URL() {
+    # given $registry/repo/path:tag, return the repo/path
+    set +o pipefail
+    echo ${1-} |
+    sed -e "s|^$registry/||" |
+    cut -d: -f1
+}
 
-    d___version_sort() {
-        # read stdin, sort by version number descending, and write stdout
-        # assumes X.Y.Z version numbers
+__version_sort() {
+    # read stdin, sort by version number descending, and write stdout
+    # assumes X.Y.Z version numbers
 
-        # this will sort tags like pr-3001, pr-3002 to the END of the list
-        # and tags like 2.1.4 BEFORE 2.1.4-gitsha
+    # this will sort tags like pr-3001, pr-3002 to the END of the list
+    # and tags like 2.1.4 BEFORE 2.1.4-gitsha
+    sort -s -t- -k 2, 2nr |
+    sort -t. -s -k 1, 1nr -k 2, 2nr -k 3, 3nr -k 4, 4nr
+}
 
-        sort -s -t- -k 2,2nr |  sort -t. -s -k 1,1nr -k 2,2nr -k 3,3nr -k 4,4nr
-    }
+__basic_auth() {
+    #
+    # read basic auth credentials from `docker login`
+    #
+    cat ~/.docker/config.json |
+    json '.auths["https://index.docker.io/v1/"].auth'
+}
 
-    d__basic_auth() {
-        #
-        # read basic auth credentials from `docker login`
-        #
-        cat ~/.docker/config.json | json '.auths["https://index.docker.io/v1/"].auth'
-    }
+__registry__tags_list() {
+    # return a list of available tags for the given repository sorted
+    # by version number, descending
+    #
+    # Get tags list from dockerhub using v2 api and an auth.docker token
 
+    local rel_repository=$(__docker_relative_repository_name_from_URL ${1})
+    [ -z "$rel_repository" ] && return
 
-    d__registry__tags_list() {
+    local TOKEN=$(curl -s -H "Authorization: Basic $(__basic_auth)" \
+                    -H 'Accept: application/json' \
+                    "https://auth.docker.io/token?service=registry.docker.io&scope=repository:$rel_repository:pull" |
+                    json .token)
 
-        # return a list of available tags for the given repository sorted
-        # by version number, descending
-        #
-        # Get tags list from dockerhub using v2 api and an auth.docker token
+    curl -s -H "Authorization: Bearer $TOKEN" -H "Accept: application/json" \
+            "https://index.docker.io/v2/$rel_repository/tags/list" |
+            json .tags |
+            json -a |
+            __version_sort
+}
 
-
-        local rel_repository=$(d__docker_relative_repository_name_from_URL ${1})
-        [ -z "$rel_repository" ] && return
-
-        local TOKEN=$(curl -s -H "Authorization: Basic $(d__basic_auth)" \
-                       -H 'Accept: application/json' \
-                       "https://auth.docker.io/token?service=registry.docker.io&scope=repository:$rel_repository:pull" | json .token)
-
-
-        curl -s -H "Authorization: Bearer $TOKEN" -H "Accept: application/json" \
-                "https://index.docker.io/v2/$rel_repository/tags/list" |
-                json .tags |
-                json -a |
-                d___version_sort
-    }
-
-
-d__registry__tags_list $REPOSITORY
+__registry__tags_list $repository

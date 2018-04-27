@@ -99,7 +99,8 @@ for img in ${imgs[@]}  ; do
     do
         # if both of the gcr and docker hub ,not do anythings
         if [ ! -z "${hub_tags[@]}" ] && (echo "${hub_tags[@]}" | grep -w "${tag}" &>/dev/null); then
-            echo google_containers/${img}:${tag} exits
+            # echo google_containers/${img}:${tag} exits
+            echo "exits"
         else
             # docker pull gcr.io/google-containers/${img}:${tag}
             # docker tag gcr.io/google-containers/${img}:${tag} ${user_name}/${img}:${tag}

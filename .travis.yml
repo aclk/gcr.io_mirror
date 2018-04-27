@@ -7,11 +7,15 @@ env:
     - NODE_ENV=TEST
 
 python:
-    - "3.5"
+    - "3.6"
+
+addons:
+  apt:
+    packages:
+    - jq
 
 install:
     - npm install -g json
-    - pip install -r requirements.txt
 
 services:
   - docker

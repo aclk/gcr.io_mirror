@@ -44,7 +44,7 @@ for img in ${imgs[@]}  ; do
         eval $i
     done
     
-    ll
+    ${ll}
 
     # get all of the files by last modify time after yesterday,it was new image
     new_tags=$(find ./gcr.io_mirror/google_containers/${img} -path "*.md" -prune -o -mtime -1 -type f -exec basename {} \;)
